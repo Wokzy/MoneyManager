@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Main Page{% endblock %}
+
+{% block content %}
+
+<h1>Accounts, Categories and last five changes</h1>
+
+<h3>Accounts:</h3>
+{% if accounts_list %}
+	{% for account in accounts_list %}
+		<a href="{% url 'MoneyManager:detail' account.id %}">{{account.account_name}} ({{account.account_value}}{% if account.account_value_fraction != 0 %}.{{account.account_value_fraction}}{% endif %})</a><br>
+	{% endfor %}
+{% else %}
+	No accounts here
+{% endif %}
+
+<p></p>
+
+<h3>Create Account:</h3>
+
+<form action="{% url 'MoneyManager:create_account' %}" method="POST">
+	<input type="text" required placeholder="Account name" name="name"><br>
+	<input type="number" required placeholder="Account value" name="value">
+	{% csrf_token %}
+	<button type="submit">Create</button>
+</form>
+
+<p></p>
+<p></p>
+
+<h3>Categories:</h3>
+{% for i in categories %}
+	<a href="{% url 'MoneyManager:detail_categories' i.id %}">{{i.name}} ({{i.changed_value}}{% if i.changed_value_fraction != 0 %}.{{i.changed_value_fraction}}{% endif %})</a><br>
+{% endfor %}
+
+<p></p>
+
+<h3>Create Category:</h3>
+
+<form action="{% url 'MoneyManager:create_category' %}" method="POST">
+	<input type="text" required placeholder="Category name" name="name"><br>
+
+	<input type="radio" id="income" required="Choose type" name="income" value="1">
+	<label for="income">Income </label>
+
+	<input type="radio" id="spend" required="Choose type" name="income" value="0">
+	<label for="spend">Spend </label>
+
+	{% csrf_token %}
+	<button type="submit">Create</button>
+</form>
+<p></p>
+<h3>Last several changes:</h3>
+{% if last_five_changes %}
+	{% for change in last_five_changes %}
+		<p>
+			<h3>{{change.account.account_name}} ({{change.category.name}})</h3>
+			Amount: 
+			{{change.amount}}{% if change.amount_fraction != 0 %}.{{change.amount_fraction}}{% endif %}
+
+			{{change.date}}
+		</p>
+	{% endfor %}
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}{{category.name}}{% endblock %}
+
+{% block content %}
+
+<a href="/MoneyManager"><- Main Page</a>
+<h1>{{category.name}} ({% if category.is_income %}Income{% else %}Spend{% endif %})</h1>
+
+<p>
+	Changed value:
+	{{category.changed_value}}{% if category.changed_value_fraction != 0 %}.{{category.changed_value_fraction}}{% endif %}
+</p>
+
+<h3>Changes:</h3>
+
+{% if changes %}
+
+	{% for i in changes %}
+		<p>
+			<h3>{{i.account.account_name}} ({{i.category.name}})</h3>
+			Amount: 
+			{{i.amount}}{% if i.amount_fraction != 0 %}.{{i.amount_fraction}}{% endif %}
+
+			{{i.date}}
+		</p>
+	{% endfor %}
+
+{% else %}
+	No changes yet.
+{% endif %}
+
+{% if category.name != constants.noname_spend_category and category.name != constants.noname_income_category %}
+	<form action="{% url 'MoneyManager:remove_category' category.id %}" method="POST">
+		{% csrf_token %}
+		<button type="submit">REMOVE</button>
+	</form>
+{% endif %}
+
+
+{% endblock %}

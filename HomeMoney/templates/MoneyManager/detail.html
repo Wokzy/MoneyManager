@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}{{account.account_name}}{% endblock %}
+
+{% block content %}
+
+<a href="/MoneyManager"><- Main Page</a>
+<h1>{{account.account_name}}</h1>
+
+<p>
+	Balance: 
+	<strong>{{account.account_value}}</strong>
+</p>
+
+<p>
+	Last transaction 
+	<em>{{account.last_change}}</em>
+</p>
+
+<hr>
+
+{% if changes_list %}
+
+	<h2>Changes Histroy</h2>
+
+	{% for i in changes_list %}
+		<p>
+			<h3>{{i.category.name}} </h3>
+			Amount: 
+			{{i.amount}}{% if i.amount_fraction != 0 %}.{{i.amount_fraction}}{% endif %}
+
+			{{i.date}}
+		</p>
+	{% endfor %}
+
+{% else %}
+	No transactions yet. You can make the first one!
+{% endif %}
+
+<hr>
+
+<form action="{% url 'MoneyManager:remove_account' account.id%}" method="POST">
+		{% csrf_token %}
+		<button type="submit">Remove</button>
+</form>
+
+{% endblock %}

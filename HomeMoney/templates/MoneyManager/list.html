@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Main Page{% endblock %}
+
+{% block content %}
+
+	<h1>WELCOME TO HOME MONEY</h1>
+	<h3>Make change (Balance: {{all_cash}}):</h2>
+
+	<form action="{% url 'MoneyManager:add_change' %}" method="POST">
+		{% if accounts_list %}
+			<label for="accounts">Choose an account:</label>
+
+			<select name="account" id="accounts">
+				{% for a in accounts_list %}
+					<!-- <a href="{% url 'MoneyManager:detail' a.id %}">{{a.account_name}} ({{a.account_value}})</a> -->
+					<option value="{{a.id}}">{{a.account_name}} ({{a.account_value}}{% if a.account_value_fraction != 0 %}.{{a.account_value_fraction}}{% endif %})</option>
+				{% endfor %}
+			</select> <input type="text" required placeholder="change value (calc)" name="value">
+
+		{% else %}
+			No accounts here
+		{% endif %}
+
+		<p></p>
+
+		<label for="categories">Choose a category:</label>
+		<select name="category" id="categories">
+			{% for i in categories %}
+				<!-- <a href="{% url 'MoneyManager:detail_categories' i.id %}">{{i.name}} ({{i.changed_value}})</a> -->
+				<option value="{{i.id}}">{{i.name}} ({% if i.is_income %}Income{% else %}Spend{% endif %})</option>
+			{% endfor %}
+		</select> <input type="text" placeholder="change comment" name="comment"><br>
+		
+		{% csrf_token %}
+		<button type="submit">Post Change</button>
+	</form>
+
+
+	<p></p>
+	<h3>Create Account:</h3>
+
+	<a href="{% url 'MoneyManager:accounts_categories_changes' %}">accounts, categories and changes</a>
+
+{% endblock %}
