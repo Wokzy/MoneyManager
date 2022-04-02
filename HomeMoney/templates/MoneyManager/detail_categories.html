@@ -13,21 +13,27 @@
 </p>
 
 <h3>Changes:</h3>
-
 {% if changes %}
-
-	{% for i in changes %}
-		<p>
-			<h3>{{i.account.account_name}} ({{i.category.name}})</h3>
-			Amount: 
-			{{i.amount}}{% if i.amount_fraction != 0 %}.{{i.amount_fraction}}{% endif %}
-
-			{{i.date}}
-		</p>
+<table>
+	<tr>
+		<th>Date</th>
+		<th>Account</th>
+		<th>Amount</th>
+		<th>Comment</th>
+	</tr>
+	
+	{% for change in changes %}
+		<tr>
+			<td>{{change.date}}</td>
+			<td>{{change.account.account_name}}</td>
+			<td>{{change.amount}}{% if change.amount_fraction != 0 %}.{{change.amount_fraction}}{% endif %}</td>
+			<td>{% if change.comment != "" %}({{change.comment}}){% endif %}</td>
+		</tr>
 	{% endfor %}
-
+	
+</table>
 {% else %}
-	No changes yet.
+	No changes yet
 {% endif %}
 
 {% if category.name != constants.noname_spend_category and category.name != constants.noname_income_category %}

@@ -4,19 +4,114 @@
 
 {% block content %}
 
-	<h1>WELCOME TO HOME MONEY</h1>
-	<h3>Make change (Balance: {{all_cash}}):</h2>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {font-family: Arial;}
 
+/* Style the tab */
+.operation_tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the operation_tab */
+.operation_tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.operation_tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current operation_tablink class */
+.operation_tab button.active {
+  background-color: #ccc;
+}
+
+
+/* Style the operation_tab content */
+.operation_tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+
+.objects_tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the objects_tab */
+.objects_tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.objects_tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current objects_tablink class */
+.objects_tab button.active {
+  background-color: #ccc;
+}
+
+/* Style the objects_tab content */
+.objects_tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;;
+  border-top: none;
+}
+
+#Spend {background-color:#F08616;}
+#Income {background-color:#3ABD27;}
+#Transfer {background-color:#62D3FC;}
+}
+</style>
+</head>
+
+
+<h1>WELCOME TO HOME MONEY</h1>
+<h3>Make change (Balance: {{all_cash}}):</h2>
+
+<div class="operation_tab">
+  <button class="operation_tablinks" onclick="openOperationTab(event, 'Income', '#3ABD27', this)" id="IncomeButton">Income</button>
+  <button class="operation_tablinks" onclick="openOperationTab(event, 'Spend', '#F08616', this)" id="SpendButton">Spend</button>
+  <button class="operation_tablinks" onclick="openOperationTab(event, 'Transfer', '#62D3FC', this)" id="TransferButton">Transfer</button>
+</div>
+
+<div id="Income" class="operation_tabcontent">
+	<h3>Income</h3>
 	<form action="{% url 'MoneyManager:add_change' %}" method="POST">
 		{% if accounts_list %}
 			<label for="accounts">Choose an account:</label>
 
 			<select name="account" id="accounts">
 				{% for a in accounts_list %}
-					<!-- <a href="{% url 'MoneyManager:detail' a.id %}">{{a.account_name}} ({{a.account_value}})</a> -->
 					<option value="{{a.id}}">{{a.account_name}} ({{a.account_value}}{% if a.account_value_fraction != 0 %}.{{a.account_value_fraction}}{% endif %})</option>
 				{% endfor %}
-			</select> <input type="text" required placeholder="change value (calc)" name="value">
+			</select> <input type="text" autocomplete="off" required placeholder="change value (calc)" name="value"> <input type="date" required name="date"> <input type="time" required name="time">
+
 
 		{% else %}
 			No accounts here
@@ -27,19 +122,225 @@
 		<label for="categories">Choose a category:</label>
 		<select name="category" id="categories">
 			{% for i in categories %}
-				<!-- <a href="{% url 'MoneyManager:detail_categories' i.id %}">{{i.name}} ({{i.changed_value}})</a> -->
-				<option value="{{i.id}}">{{i.name}} ({% if i.is_income %}Income{% else %}Spend{% endif %})</option>
+				{% if i.is_income %}
+					<option value="{{i.id}}">{{i.name}}</option>
+				{% endif %}
 			{% endfor %}
-		</select> <input type="text" placeholder="change comment" name="comment"><br>
+		</select> <input type="text" autocomplete="off" placeholder="comment" name="comment"><br>
 		
 		{% csrf_token %}
 		<button type="submit">Post Change</button>
 	</form>
+</div>
 
+<div id="Spend" class="operation_tabcontent">
+	<h3>Spend</h3>
+	<form action="{% url 'MoneyManager:add_change' %}" method="POST">
+		{% if accounts_list %}
+			<label for="accounts">Choose an account:</label>
+
+			<select name="account" id="accounts">
+				{% for a in accounts_list %}
+					<option value="{{a.id}}">{{a.account_name}} ({{a.account_value}}{% if a.account_value_fraction != 0 %}.{{a.account_value_fraction}}{% endif %})</option>
+				{% endfor %}
+			</select> <input type="text" autocomplete="off" required placeholder="change value (calc)" name="value"> <input type="date" required name="date"> <input type="time" required name="time">
+
+		{% else %}
+			No accounts here
+		{% endif %}
+
+		<p></p>
+
+		<label for="categories">Choose a category:</label>
+		<select name="category" id="categories">
+			{% for i in categories %}
+				{% if not i.is_income %}
+					<option value="{{i.id}}">{{i.name}}</option>
+				{% endif %}
+			{% endfor %}
+		</select> <input type="text" autocomplete="off" placeholder="comment" name="comment"><br>
+		
+		{% csrf_token %}
+		<button type="submit">Post Change</button>
+	</form>
+</div>
+
+<div id="Transfer" class="operation_tabcontent">
+	<h3>Transfer</h3>
+	<form action="{% url 'MoneyManager:transfer' %}" method="POST">
+		{% if accounts_list %}
+			<label for="from">From:</label>
+
+			<select name="from" id="from,">
+				{% for a in accounts_list %}
+					<option value="{{a.id}}">{{a.account_name}} ({{a.account_value}}{% if a.account_value_fraction != 0 %}.{{a.account_value_fraction}}{% endif %})</option>
+				{% endfor %}
+			</select> <input type="text" autocomplete="off" required placeholder="transfer value (calc)" name="value">
+
+			<p></p>
+
+			<label for="to">To:</label>
+
+			<select name="to" id="to,">
+				{% for a in accounts_list %}
+					<option value="{{a.id}}">{{a.account_name}} ({{a.account_value}}{% if a.account_value_fraction != 0 %}.{{a.account_value_fraction}}{% endif %})</option>
+				{% endfor %}
+			</select> <input type="text" autocomplete="off" placeholder="comment" name="comment">
+			<p></p>
+			{% csrf_token %}
+			<button type="submit">Transfer</button>
+		{% else %}
+			No accounts here
+		{% endif %}
+	</form>
+</div>
+<p></p>
+<p></p>
+<div class="objects_tab">
+  <button class="objects_tablinks" onclick="openObjectsTab(event, 'Accounts')" id="AccountsButton">Accounts</button>
+  <button class="objects_tablinks" onclick="openObjectsTab(event, 'Categories')" id="CategoriesButton">Categories</button>
+  <button class="objects_tablinks" onclick="openObjectsTab(event, 'Changes')" id="ChangesButton">Changes</button>
+</div>
+
+<div id="Accounts" class="objects_tabcontent">
+	<h2>Accounts:</h2>
+	<p></p>
+
+	{% if accounts_list %}
+		{% for account in accounts_list %}
+			<a href="{% url 'MoneyManager:detail' account.id %}">{{account.account_name}} ({{account.account_value}}{% if account.account_value_fraction != 0 %}.{{account.account_value_fraction}}{% endif %})</a><br>
+		{% endfor %}
+	{% else %}
+		No accounts here
+	{% endif %}
 
 	<p></p>
+
 	<h3>Create Account:</h3>
 
-	<a href="{% url 'MoneyManager:accounts_categories_changes' %}">accounts, categories and changes</a>
+	<form action="{% url 'MoneyManager:create_account' %}" method="POST">
+		<input type="text" autocomplete="off" required placeholder="Account name" name="name"><br>
+		<input type="number" autocomplete="off" required placeholder="Account value" name="value">
+		{% csrf_token %}
+		<button type="submit">Create</button>
+	</form>
+</div>
 
+<div id="Categories" class="objects_tabcontent">
+	<h2>Categories:</h2>
+	<p></p>
+
+	{% for i in categories %}
+		<a href="{% url 'MoneyManager:detail_categories' i.id %}">{{i.name}} ({{i.changed_value}}{% if i.changed_value_fraction != 0 %}.{{i.changed_value_fraction}}{% endif %})</a><br>
+	{% endfor %}
+
+	<p></p>
+	
+	<h3>Create Category:</h3>
+
+	<form action="{% url 'MoneyManager:create_category' %}" method="POST">
+		<input type="text" autocomplete="off" required placeholder="Category name" name="name"><br>
+
+		<input type="radio" id="income" required="Choose type" name="income" value="1">
+		<label for="income">Income </label>
+
+		<input type="radio" id="spend" required="Choose type" name="income" value="0">
+		<label for="spend">Spend </label>
+
+		{% csrf_token %}
+		<button type="submit">Create</button>
+	</form>
+
+</div>
+
+<div id="Changes" class="objects_tabcontent">
+	<h2>Last five changes: </h2>
+	<p></p>
+	<table>
+		<tr>
+			<th>Date</th>
+			<th>Account</th>
+			<th>Category</th>
+			<th>Amount</th>
+			<th>Comment</th>
+		</tr>
+		{% if last_five_changes %}
+			{% for change in last_five_changes %}
+				<tr>
+					<td>{{change.date}}</td>
+					<td>{{change.account.account_name}}{% if change.transfer %} -> {{change.transfer_getter}}{% endif %}</td>
+					<td>{{change.category.name}}</td>
+					<td>{{change.amount}}{% if change.amount_fraction != 0 %}.{{change.amount_fraction}}{% endif %}</td>
+					<td>{% if change.comment != "" %}({{change.comment}}){% endif %}</td>
+				</tr>
+			{% endfor %}
+		{% else %}
+			No changes yet
+		{% endif %}
+	</table>
+	<h2>Changes for the last month</h2>
+	<table>
+		<tr>
+			<th>Date</th>
+			<th>Account</th>
+			<th>Category</th>
+			<th>Amount</th>
+			<th>Comment</th>
+		</tr>
+		{% if last_month_changes %}
+			{% for change in last_month_changes %}
+				<tr>
+					<td>{{change.date}}</td>
+					<td>{{change.account.account_name}}{% if change.transfer %} -> {{change.transfer_getter}}{% endif %}</td>
+					<td>{{change.category.name}}</td>
+					<td>{{change.amount}}{% if change.amount_fraction != 0 %}.{{change.amount_fraction}}{% endif %}</td>
+					<td>{% if change.comment != "" %}({{change.comment}}){% endif %}</td>
+				</tr>
+			{% endfor %}
+		{% else %}
+			No changes yet
+		{% endif %}
+	</table>
+</div>
+
+<script>
+document.getElementById("SpendButton").click();
+function openOperationTab(evt, TabName, color, element) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("operation_tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("operation_tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+    tablinks[i].style.backgroundColor = "";
+  }
+  document.getElementById(TabName).style.display = "block";
+  document.getElementById(TabName+"Button").style.background = color;
+  evt.currentTarget.className += " active";
+}
+
+function openObjectsTab(evt, TabName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("objects_tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("objects_tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(TabName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+</script>
+
+<p></p>
+<!-- <h3>Account</h3> -->
+
+<!--
+<h2>
+<a href="{% url 'MoneyManager:accounts_categories_changes' %}">Accounts, categories and changes</a>
+</h2> -->
 {% endblock %}

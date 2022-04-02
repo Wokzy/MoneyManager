@@ -16,28 +16,37 @@
 	Last transaction 
 	<em>{{account.last_change}}</em>
 </p>
-
-<hr>
-
 {% if changes_list %}
-
-	<h2>Changes Histroy</h2>
-
-	{% for i in changes_list %}
-		<p>
-			<h3>{{i.category.name}} </h3>
-			Amount: 
-			{{i.amount}}{% if i.amount_fraction != 0 %}.{{i.amount_fraction}}{% endif %}
-
-			{{i.date}}
-		</p>
+<table>
+	<tr>
+		<th>Date</th>
+		<th>Category</th>
+		<th>Amount</th>
+		<th>Comment</th>
+		<th>Transfer</th>
+	</tr>
+	
+	{% for change in changes_list %}
+		<tr>
+			<td>{{change.date}}</td>
+			<td>{{change.category.name}}</td>
+			<td>{{change.amount}}{% if change.amount_fraction != 0 %}.{{change.amount_fraction}}{% endif %}</td>
+			<td>{% if change.comment != "" %}({{change.comment}}){% endif %}</td>
+			<td>
+				{% if change.transfer %}
+					{% if change.account == account %} 
+						sent to {{change.transfer_getter}}
+					{% else %}
+						came from {{change.account}}
+					{% endif %}
+				{% endif %}
+			</td>
+		</tr>
 	{% endfor %}
-
+</table>
 {% else %}
-	No transactions yet. You can make the first one!
+	No changes yet
 {% endif %}
-
-<hr>
 
 <form action="{% url 'MoneyManager:remove_account' account.id%}" method="POST">
 		{% csrf_token %}
