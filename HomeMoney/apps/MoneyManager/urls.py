@@ -11,6 +11,7 @@ urlpatterns = [
 	path('create_account', views.create_account, name = 'create_account'),
 	path('create_category', views.create_category, name = 'create_category'),
 	path('<int:account_id>/remove_account', views.remove_account, name = 'remove_account'),
-	path('accounts_categories_changes', views.accounts_categories_changes, name = 'accounts_categories_changes'),
+	path('particular_changes', views.particular_changes, name = 'particular_changes'),
 	path('transfer', views.transfer, name = 'transfer')
+	#path('accounts_categories_changes', views.accounts_categories_changes, name = 'accounts_categories_changes'),
 ]

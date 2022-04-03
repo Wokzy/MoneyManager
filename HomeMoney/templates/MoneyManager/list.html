@@ -301,6 +301,38 @@ body {font-family: Arial;}
 			No changes yet
 		{% endif %}
 	</table>
+	<p></p>
+	<h2> Get changes from particular range </h2>
+	<p>
+		<form action="{% url 'MoneyManager:particular_changes' %}" method="POST">
+			From: <input type="date" required name="from_date"> <input type="time" name="from_time">
+			To :<input type="date" required name="to_date"> <input type="time" name="to_time">
+
+			{% csrf_token %}
+			<button type="submit">Create</button>
+		</form>
+	</p>
+	<p></p>
+	{% if particular_changes %}
+		<table>
+			<tr>
+				<th>Date</th>
+				<th>Account</th>
+				<th>Category</th>
+				<th>Amount</th>
+				<th>Comment</th>
+			</tr>
+			{% for change in particular_changes %}
+				<tr>
+					<td>{{change.date}}</td>
+					<td>{{change.account.account_name}}{% if change.transfer %} -> {{change.transfer_getter}}{% endif %}</td>
+					<td>{{change.category.name}}</td>
+					<td>{{change.amount}}{% if change.amount_fraction != 0 %}.{{change.amount_fraction}}{% endif %}</td>
+					<td>{% if change.comment != "" %}({{change.comment}}){% endif %}</td>
+				</tr>
+			{% endfor %}
+		</table>
+	{% endif %}
 </div>
 
 <script>
@@ -336,11 +368,10 @@ function openObjectsTab(evt, TabName) {
 }
 </script>
 
-<p></p>
-<!-- <h3>Account</h3> -->
+{% if particular_changes %}
+	<script>
+		document.getElementById("ChangesButton").click();
+	</script>
+{% endif %}
 
-<!--
-<h2>
-<a href="{% url 'MoneyManager:accounts_categories_changes' %}">Accounts, categories and changes</a>
-</h2> -->
 {% endblock %}
