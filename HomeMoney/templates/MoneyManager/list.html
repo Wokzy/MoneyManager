@@ -181,7 +181,7 @@ body {font-family: Arial;}
 
 			<label for="to">To:</label>
 
-			<select name="to" id="to,">
+			<select name="to" id="to">
 				{% for a in accounts_list %}
 					<option value="{{a.id}}">{{a.account_name}} ({{a.account_value}}{% if a.account_value_fraction != 0 %}.{{a.account_value_fraction}}{% endif %})</option>
 				{% endfor %}
@@ -263,6 +263,7 @@ body {font-family: Arial;}
 			<th>Category</th>
 			<th>Amount</th>
 			<th>Comment</th>
+			<th></th>
 		</tr>
 		{% if last_five_changes %}
 			{% for change in last_five_changes %}
@@ -272,6 +273,12 @@ body {font-family: Arial;}
 					<td>{{change.category.name}}</td>
 					<td>{{change.amount}}{% if change.amount_fraction != 0 %}.{{change.amount_fraction}}{% endif %}</td>
 					<td>{% if change.comment != "" %}({{change.comment}}){% endif %}</td>
+					<td>
+						<form action="{% url 'MoneyManager:edit_change' %}" method="POST">
+							{% csrf_token %}
+							<button type="submit" name="change_id" value="{{change.id}}">Edit</button>
+						</form>
+					</td>
 				</tr>
 			{% endfor %}
 		{% else %}

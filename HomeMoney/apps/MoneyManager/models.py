@@ -8,7 +8,8 @@ class User(models.Model):
 class Account(models.Model):
 	#user = models.ForeignKey(User, on_delete = models.CASCADE)
 	account_name = models.CharField('name of your account', max_length = 32)
-	account_value = models.IntegerField('value')
+	account_value = models.IntegerField('value', default=0)
+	beginning_value = models.IntegerField('value', default=0)
 	account_value_fraction = models.IntegerField('value', default=0)
 	last_change = models.DateTimeField('date of last change', null=True)
 

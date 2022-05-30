@@ -12,6 +12,9 @@ urlpatterns = [
 	path('create_category', views.create_category, name = 'create_category'),
 	path('<int:account_id>/remove_account', views.remove_account, name = 'remove_account'),
 	path('particular_changes', views.particular_changes, name = 'particular_changes'),
+	path('edit_change', views.edit_change, name = 'edit_change'),
+	path('remove_change', views.remove_change, name = 'remove_change'),
+	path('apply_change_edition', views.apply_change_edition, name = 'apply_change_edition'),
 	path('transfer', views.transfer, name = 'transfer')
 	#path('accounts_categories_changes', views.accounts_categories_changes, name = 'accounts_categories_changes'),
 ]

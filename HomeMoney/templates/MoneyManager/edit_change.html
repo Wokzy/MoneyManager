@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block title %}Main Page{% endblock %}
+
+{% block content %}
+
+<h1>{{change.account}} {% if change.transfer %}->{{change.transfer_getter}}{% else %}{{change.category.name}}{% endif %} ({{change.amount}}.{{change.amount_fraction}})</h1>
+<p></p>
+
+<style>
+body {font-family: Arial;}
+
+/* Style the tab */
+.operation_tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the operation_tab */
+.operation_tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.operation_tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current operation_tablink class */
+.operation_tab button.active {
+  background-color: #ccc;
+}
+
+
+/* Style the operation_tab content */
+.operation_tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+</style>
+
+<div class="operation_tab">
+  <button class="operation_tablinks" onclick="openOperationTab(event, 'Income', '#3ABD27', this)" id="IncomeButton">Income</button>
+  <button class="operation_tablinks" onclick="openOperationTab(event, 'Spend', '#F08616', this)" id="SpendButton">Spend</button>
+  <button class="operation_tablinks" onclick="openOperationTab(event, 'Transfer', '#62D3FC', this)" id="TransferButton">Transfer</button>
+</div>
+
+<div id="Income" class="operation_tabcontent">
+	<h3>Income</h3>
+	<form action="{% url 'MoneyManager:apply_change_edition' %}" method="POST">
+		{% if accounts_list %}
+			<label for="accounts">Choose an account:</label>
+
+			<select name="account" id="accounts">
+				{% for a in accounts_list %}
+					<option value="{{a.id}}">{{a.account_name}} ({{a.account_value}}{% if a.account_value_fraction != 0 %}.{{a.account_value_fraction}}{% endif %})</option>
+				{% endfor %}
+			</select> <input type="text" autocomplete="off" placeholder="change value (calc)" name="value"> <input type="date" name="date"> <input type="time" name="time">
+
+
+		{% else %}
+			No accounts here
+		{% endif %}
+
+		<p></p>
+
+		<label for="categories">Choose a category:</label>
+		<select name="category" id="categories">
+			{% for i in categories %}
+				{% if i.is_income %}
+					<option value="{{i.id}}">{{i.name}}</option>
+				{% endif %}
+			{% endfor %}
+		</select> <input type="text" autocomplete="off" placeholder="comment" name="comment"><br>
+		
+		{% csrf_token %}
+		<button type="submit" value="{{change.id}}", name="income">Apply Change</button>
+	</form>
+</div>
+
+<div id="Spend" class="operation_tabcontent">
+	<h3>Spend</h3>
+	<form action="{% url 'MoneyManager:apply_change_edition' %}" method="POST">
+		{% if accounts_list %}
+			<label for="accounts">Choose an account:</label>
+
+			<select name="account" id="accounts">
+				{% for a in accounts_list %}
+					<option value="{{a.id}}">{{a.account_name}} ({{a.account_value}}{% if a.account_value_fraction != 0 %}.{{a.account_value_fraction}}{% endif %})</option>
+				{% endfor %}
+			</select> <input type="text" autocomplete="off" placeholder="change value (calc)" name="value"> <input type="date" name="date"> <input type="time" name="time">
+
+		{% else %}
+			No accounts here
+		{% endif %}
+
+		<p></p>
+
+		<label for="categories">Choose a category:</label>
+		<select name="category" id="categories">
+			{% for i in categories %}
+				{% if not i.is_income %}
+					<option value="{{i.id}}">{{i.name}}</option>
+				{% endif %}
+			{% endfor %}
+		</select> <input type="text" autocomplete="off" placeholder="comment" name="comment"><br>
+		
+		{% csrf_token %}
+		<button type="submit" value="{{change.id}}", name="spend">Apply Change</button>
+	</form>
+</div>
+
+<div id="Transfer" class="operation_tabcontent">
+	<h3>Transfer</h3>
+	<form action="{% url 'MoneyManager:apply_change_edition' %}" method="POST">
+		{% if accounts_list %}
+			<label for="from">From:</label>
+
+			<select name="from" id="from">
+				{% for a in accounts_list %}
+					<option value="{{a.id}}">{{a.account_name}} ({{a.account_value}}{% if a.account_value_fraction != 0 %}.{{a.account_value_fraction}}{% endif %})</option>
+				{% endfor %}
+			</select> <input type="text" autocomplete="off" placeholder="transfer value (calc)" name="value">
+
+			<p></p>
+
+			<label for="to">To:</label>
+
+			<select name="to" id="to">
+				{% for a in accounts_list %}
+					<option value="{{a.id}}">{{a.account_name}} ({{a.account_value}}{% if a.account_value_fraction != 0 %}.{{a.account_value_fraction}}{% endif %})</option>
+				{% endfor %}
+			</select> <input type="text" autocomplete="off" placeholder="comment" name="comment">
+			<p></p>
+			{% csrf_token %}
+			<button type="submit" value="{{change.id}}", name="transfer">Apply Change</button>
+		{% else %}
+			No accounts here
+		{% endif %}
+	</form>
+</div>
+<p></p>
+<p></p>
+<p></p>
+<form action="{% url 'MoneyManager:remove_change' %}" method="POST">
+	{% csrf_token %}
+	<button type="submit" value="{{change.id}}", name="change_id">REMOVE</button>
+</form>
+
+<script>
+document.getElementById("SpendButton").click();
+function openOperationTab(evt, TabName, color, element) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("operation_tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("operation_tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+    tablinks[i].style.backgroundColor = "";
+  }
+  document.getElementById(TabName).style.display = "block";
+  document.getElementById(TabName+"Button").style.background = color;
+  evt.currentTarget.className += " active";
+}
+</script>
+
+
+{% endblock %}
